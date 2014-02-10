@@ -31,8 +31,6 @@ class ZipEntry
       self._sources().each do |f|
         pn = Pathname.new(f)
         relative = pn.relative_path_from(spn)
-        puts "---- base=#{base}"
-        puts "---- relative=#{relative}"
         ZipEntry.process_file(zipfile, f, File.join(base, relative))
       end
     else
@@ -102,7 +100,6 @@ class ZipTask
     Zip.continue_on_exists_proc = true
     Zip::File.open(@_archive, Zip::File::CREATE) do |zipfile|
       @_entries.each do |entry|
-        puts "-- entry: #{entry.inspect}"
         entry._zip(zipfile)
       end
     end
@@ -137,19 +134,3 @@ end
 
 def unzip(archive, &block)
 end
-
-
-# folder = "./data"
-# input_filenames = ['bla.txt']
-
-# zipfile_name = "./archive.zip"
-
-# Zip::File.open(zipfile_name, Zip::File::CREATE) do |zipfile|
-#   input_filenames.each do |filename|
-#     # Two arguments:
-#     # - The name of the file as it will appear in the archive
-#     # - The original file, including the path to find it
-#     zipfile.add('data/'+filename, folder + '/' + filename)
-#   end
-#   zipfile.get_output_stream("myFile") { |os| os.write "myFile contains just this" }
-# end
