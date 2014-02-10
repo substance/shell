@@ -41,7 +41,7 @@ end
 def create_bundle(cef_archive)
   cef_client_dir = "tmp/#{File.basename(cef_archive, '.*')}"
   cef_bundle_dir = "#{cef_client_dir}_bundle"
-  cef_bundle = "#{cef_client_dir}.zip"
+  cef_bundle = cef_client_dir.sub('client', 'minimal') +".zip"
 
   lib_folder = "#{cef_bundle_dir}/lib"
   resource_folder = "#{cef_bundle_dir}/resource"
