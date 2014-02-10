@@ -1,3 +1,6 @@
 /tmp
 /build
 /tools/gyp
+.bundle
+/vendor/bundle
+Gemfile.lock
