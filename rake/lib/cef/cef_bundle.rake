@@ -1,7 +1,9 @@
 # Unfortunately the CEF binaries can not be downloaded programmatically,
 # as they are password protected.
 # So we have to download the binaries manually and apply the following tasks
-# to create bundles that we provide via github download links.
+# to create bundles that we will host ourselves.
+require File.join(File.dirname(__FILE__), "cef_bundle")
+
 private
 
 @cef_dir = "tmp/cef-1650"
@@ -19,33 +21,25 @@ cef_libs = {
 # ----
 
 # Clone CEF repository
-directory @cef_dir do
-  sh "git clone --depth 1 #{cef_repository} #{@cef_dir}"
+Git.clone cef_repository do
+  path @cef_dir
+  depth 1
 end
 
-namespace :prereq do
-  desc "Creates a minimal CEF3 bundle."
-  task :cef_bundle => [@cef_dir] do
+desc "Creates a minimal CEF3 bundle."
+task 'prereq:cef_bundle' => [@cef_dir] do
 
-    # Present a message if no archives are there
-    if cef_client_archives.empty?
-      log.warn "No CEF client archives found."
-      log.warn "You have to download an archive for CEF #{CEF_VERSION} and put it into 'tmp/'"
-      return
-    end
+  # Present a message if no archives are there
+  if cef_client_archives.empty?
+    log.warn "No CEF client archives found."
+    log.warn "You have to download an archive for CEF #{CEF_VERSION} and put it into 'tmp/'"
+    return
   end
 end
 
-# For each found archive we setup a task chain to create a zip-bundle
-
-def create_bundle(cef_archive)
+cef_client_archives.each do |cef_archive|
   cef_client_dir = "tmp/#{File.basename(cef_archive, '.*')}"
-  cef_bundle_dir = "#{cef_client_dir}_bundle"
-  cef_bundle = cef_client_dir.sub('client', 'minimal') +".zip"
-
-  lib_folder = "#{cef_bundle_dir}/lib"
-  resource_folder = "#{cef_bundle_dir}/resource"
-  release_folder = "#{cef_client_dir}/Release"
+  cef_bundle = "#{cef_client_dir}.zip"
 
   # Extract CEF archive
   directory cef_client_dir do
@@ -53,57 +47,12 @@ def create_bundle(cef_archive)
     sh "7zr x -otmp/ #{cef_archive}"
   end
 
-  # Create directories
-  directory cef_bundle_dir
-  directory resource_folder
-  directory lib_folder
-
-  platform_name = nil
-  ["linux", "macosx", "windows"].each do |p|
-    platform_name = p if cef_archive.include?(p)
-  end
-
-  file cef_bundle => [cef_client_dir, cef_bundle_dir, resource_folder, lib_folder] do
-    copy "#{@cef_dir}/include", cef_bundle_dir
-    copy "#{@cef_dir}/tests/cefclient", cef_bundle_dir
-
-    case platform_name
-    when "linux"
-      copy "#{release_folder}/libffmpegsumo.so", lib_folder
-      copy "#{release_folder}/lib/libcef.so", lib_folder
-      copy "#{release_folder}/cef.pak", resource_folder
-      copy "#{release_folder}/devtools_resources.pak", resource_folder
-      copy "#{release_folder}/locales", resource_folder
-    when "macosx"
-      # TODO: this is rather lazy. Should copy only what is really necessary
-      # Have to wait until I know what is actually needed to build a cef app.
-      frameworks_folder = "#{release_folder}/cefclient.app/Contents/Frameworks"
-      copy "#{frameworks_folder}", lib_folder
-    else
-      puts "Copy cef files is not implemented yet!"
-    end
-
-    # TODO: factor out some stuff from Rake's PackageTask into a light-weight helper
-    # see https://github.com/jimweirich/rake/blob/master/lib/rake/packagetask.rb
-    chdir(cef_bundle_dir) do
-      sh %{zip -r ../#{File.basename(cef_bundle)} *}
-    end
-  end
-
-end
-
-cef_client_archives.each do |f|
-  cef_client_dir = "tmp/#{File.basename(f, '.*')}"
-  cef_bundle_dir = "#{cef_client_dir}_bundle"
-  cef_bundle = "#{cef_client_dir}.zip"
-
-  create_bundle(f)
+  createCefBundle(cef_bundle, @cef_dir, cef_client_dir)
 
   # Cleanup
   desc "Cleanup temporary files from CEF bundling."
   task "clean:cef_bundle" do
     clean cef_client_dir
-    clean cef_bundle_dir
     clean cef_bundle
   end
 

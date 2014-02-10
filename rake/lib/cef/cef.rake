@@ -19,13 +19,16 @@ else
   cef_bundle = "cef_binary_3.#{CEF_VERSION}_#{os}32_minimal.zip"
 end
 
-download_url = "tmp/#{cef_bundle}"
+download_url = nil
 
 namespace :setup do
 
-  Git.clone cef_repository do
-    path cef_dir
-    depth 1
+  download download_url do
+    path "tmp/#{cef_bundle}"
+  end
+
+  file "tmp/cef_bundle" do
+
   end
 
   desc "Downloads the CEF binaries for your platform."
