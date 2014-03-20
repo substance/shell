@@ -17,7 +17,14 @@ unzip downloaded_zip do
 end
 
 desc "Downloads node-webkit for your platform."
-task "download:node-webkit" => "unzip:#{downloaded_zip}"
+task "download:node-webkit" => "unzip:#{downloaded_zip}" do
+  # HACK: we need to fix file permissions as ruby zip does not respect those
+  if OS.mac?
+    contents = File.join(target_dir, 'node-webkit.app', 'Contents')
+    File.chmod(0755, File.join(contents, 'MacOS', 'node-webkit'))
+    File.chmod(0755, File.join(contents, 'Frameworks', 'node-webkit Helper.app', 'Contents', 'MacOS', 'node-webkit Helper'))
+  end
+end
 
 task 'setup' => 'download:node-webkit'
 

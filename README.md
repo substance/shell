@@ -21,3 +21,33 @@ Setup a local gem bundle:
 $ bundle install --path vendor/bundle
 ```
 
+The shell expects you to pull in your application into `app`
+
+```bash
+$ ln -s ../composer app
+```
+
+Bundle
+------
+
+```bash
+$ rake setup bundle
+```
+
+> Note: `rake setup` downloads and extracts `node-webkit` for your platform. This is only needed the
+  first time.
+
+Clean
+-----
+
+To remove the generated bundle do
+
+```bash
+$ rake clean
+```
+
+To even remove downloaded files do
+
+```bash
+$ rake clean:all
+```
