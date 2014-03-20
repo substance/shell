@@ -1,4 +1,5 @@
 require 'zip'
+require 'fileutils'
 
 include Rake::DSL
 
@@ -69,7 +70,7 @@ class ZipGlobEntry
   end
 end
 
-class ZipTask
+class CreateZipTask
 
   attr_reader :_archive, :_entries, :_ignore_deps
 
@@ -114,11 +115,54 @@ class ZipTask
   end
 end
 
+class ExtractZipTask
+
+  attr_reader :_archive
+
+  def initialize(archive)
+    @_archive = archive
+    @_destDir = nil;
+  end
+
+  def target_dir(path)
+    @_destDir = path
+  end
+
+  def _execute()
+
+    # create the destination dir if it doesn't exist
+    if !File.exists?(@_destDir)
+      FileUtils.mkdir_p(@_destDir)
+    elsif !File.directory?(@_destDir)
+      raise "Target is not a directory: #{@_destDir}"
+    end
+
+    Zip::File.open(@_archive) do |zip_file|
+      zip_file.each do |entry|
+
+        dest_file = File.join(@_destDir, entry.name)
+        parent_dir = File.dirname(dest_file)
+
+        if !File.exists?(parent_dir)
+          FileUtils.mkdir_p(parent_dir)
+        end
+
+        LOGGER.info "-- Extracting #{entry.name}"
+
+        # overwrites existing files
+        # TODO: maybe configurable?
+        entry.extract(dest_file) { true }
+      end
+    end
+  end
+
+end
+
 
 public
 
 def zip(archive, &block)
-  task = ZipTask.new(archive)
+  task = CreateZipTask.new(archive)
   task.instance_eval(&block) if block
 
   if task._ignore_deps
@@ -133,4 +177,11 @@ def zip(archive, &block)
 end
 
 def unzip(archive, &block)
+  task = ExtractZipTask.new(archive)
+  task.instance_eval(&block)
+
+  file "unzip:#{task._archive}" => task._archive do
+    task._execute()
+  end
+
 end

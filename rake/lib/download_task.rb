@@ -1,3 +1,5 @@
+require 'fileutils'
+
 include Rake::DSL
 
 private
@@ -24,8 +26,13 @@ class DownloadFile
   end
 
   def execute()
-    require 'open-uri'
+    parent_dir = File.dirname(@_path)
+    if !File.exists?(parent_dir)
+      FileUtils.mkdir_p(parent_dir)
+    end
 
+    LOGGER.info("Downloading file from: #{@_url}, to: #{@_path}")
+    require 'open-uri'
     access = _binary ? 'wb' : 'w'
     open(_path, access) do |f|
       f << open(_url).read
@@ -38,7 +45,6 @@ public
 def download(url, &block)
   task = DownloadFile.new(url)
   task.instance_eval(&block)
-
 
   file task._path do
     task.execute()

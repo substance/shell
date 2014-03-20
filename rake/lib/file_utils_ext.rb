@@ -6,7 +6,7 @@ module Rake
     alias_method :original_copy, :copy
     alias_method :original_mkdir, :mkdir
 
-    def copy(source, target)
+    def copy_r(source, target)
       if !File.exists?(source)
         raise "Can not copy: file/directory does not exist. #{source}"
       end

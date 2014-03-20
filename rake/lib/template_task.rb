@@ -2,6 +2,7 @@ require 'erb'
 
 private
 class ValuesBinding
+
   def initialize(values)
     @values = values;
   end
@@ -11,6 +12,8 @@ class ValuesBinding
   end
 
   def method_missing(name)
+    name = name.to_s
+
     if (name == "values")
       return @values
     end

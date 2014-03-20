@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleInfoDictionaryVersion</key>
+  <string>6.0</string>
+  <key>CFBundleDisplayName</key>
+  <string><%= config[:app_name] %></string>
+  <key>CFBundleExecutable</key>
+  <string>node-webkit</string>
+  <key>CFBundleIconFile</key>
+  <string><%= config[:app_osx_icns] %></string>
+  <key>CFBundleIdentifier</key>
+  <string><%= config[:app_id] %></string>
+  <key>CFBundleName</key>
+  <string><%= config[:app_name] %></string>
+  <key>CFBundlePackageType</key>
+  <string>APPL</string>
+  <key>LSFileQuarantineEnabled</key>
+  <true/>
+  <key>NSPrincipalClass</key>
+  <string>NSApplication</string>
+  <key>NSSupportsAutomaticGraphicsSwitching</key>
+  <true/>
+  <key>CFBundleShortVersionString</key>
+  <string><%= config[:version] %></string>
+  <key>CFBundleVersion</key>
+  <string><%= config[:repo_version] %></string>
+  <key>NSHumanReadableCopyright</key>
+  <string><%= config[:copyright] %></string>
+
+  <% if config[:osx_min_version] %>
+  <key>LSMinimumSystemVersion</key>
+  <string><%= config[:osx_min_version] %></string>
+  <% end %>
+
+</dict>
+</plist>
