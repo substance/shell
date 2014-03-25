@@ -51,3 +51,5 @@ To even remove downloaded files do
 ```bash
 $ rake clean:all
 ```
+
+To suggest a feature, report a bug, or general discussion: http://github.com/substance/substance/issues/
