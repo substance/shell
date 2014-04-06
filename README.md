@@ -9,6 +9,8 @@ Disclaimer: Under construction.
 Prerequisites
 -------------
 
+Clone the repository.
+
 We use bundler to manage gems needed by some rake tasks.
 
 ```bash
