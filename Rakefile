@@ -1,7 +1,7 @@
 require "./rake/lib/basics"
 
 APP_DIR = File.join(File.dirname(__FILE__), 'app')
-SHELL_CONFIG_DIR = File.join(APP_DIR, 'shell')
+SHELL_CONFIG_DIR = File.join(APP_DIR, 'config')
 
 LOGGER.formatter = proc do |serverity, time, progname, msg|
   "--#{msg}\n"
