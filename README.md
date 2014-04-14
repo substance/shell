@@ -9,6 +9,8 @@ Disclaimer: Under construction.
 Prerequisites
 -------------
 
+Clone the repository.
+
 We use bundler to manage gems needed by some rake tasks.
 
 ```bash
@@ -36,6 +38,13 @@ $ rake setup bundle
 
 > Note: `rake setup` downloads and extracts `node-webkit` for your platform. This is only needed the
   first time.
+  
+For development use:
+
+```bash
+$ rake bundle env=development
+```
+
 
 Clean
 -----
