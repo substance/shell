@@ -1,4 +1,5 @@
 require 'zip'
+require 'rubygems/package'
 require 'fileutils'
 
 include Rake::DSL
@@ -115,6 +116,8 @@ class CreateZipTask
   end
 end
 
+TAR_LONGLINK = '././@LongLink'
+
 class ExtractZipTask
 
   attr_reader :_archive
@@ -128,15 +131,7 @@ class ExtractZipTask
     @_destDir = path
   end
 
-  def _execute()
-
-    # create the destination dir if it doesn't exist
-    if !File.exists?(@_destDir)
-      FileUtils.mkdir_p(@_destDir)
-    elsif !File.directory?(@_destDir)
-      raise "Target is not a directory: #{@_destDir}"
-    end
-
+  def _extractZip()
     Zip::File.open(@_archive) do |zip_file|
       zip_file.each do |entry|
 
@@ -156,6 +151,49 @@ class ExtractZipTask
     end
   end
 
+  def _extractTarGz()
+    Gem::Package::TarReader.new( Zlib::GzipReader.open @_archive ) do |tar|
+      dest = nil
+      tar.each do |entry|
+        if entry.full_name == TAR_LONGLINK
+          dest = File.join(@_destDir, entry.read.strip)
+          next
+        end
+        dest ||= File.join(@_destDir, entry.full_name)
+        if entry.directory?
+          File.delete(dest) if File.file?(dest)
+          FileUtils.mkdir_p dest, :mode => entry.header.mode, :verbose => false
+        elsif entry.file?
+          FileUtils.rm_rf(dest) if File.directory?(dest)
+          LOGGER.info "-- Extracting #{dest}"
+          File.open dest, "wb" do |f|
+            f.print entry.read
+          end
+          FileUtils.chmod entry.header.mode, dest, :verbose => false
+        elsif entry.header.typeflag == '2' #Symlink!
+          File.symlink entry.header.linkname, dest
+        end
+        dest = nil
+      end
+    end
+  end
+
+  def _execute()
+
+    # create the destination dir if it doesn't exist
+    if !File.exists?(@_destDir)
+      FileUtils.mkdir_p(@_destDir)
+    elsif !File.directory?(@_destDir)
+      raise "Target is not a directory: #{@_destDir}"
+    end
+
+    if @_archive.end_with?('zip')
+      self._extractZip()
+    elsif @_archive.end_with?('tar.gz')
+      self._extractTarGz()
+    end
+
+  end
 end
 
 
@@ -183,5 +221,4 @@ def unzip(archive, &block)
   file "unzip:#{task._archive}" => task._archive do
     task._execute()
   end
-
 end
