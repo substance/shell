@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'pathname'
 require 'json'
 
 private
@@ -75,12 +76,31 @@ else
   end
 end
 
-task 'bundle:osx:package.json' => 'bundle:package.json'
+task 'bundle:osx:package.json' do
+  if ENV['env'] != 'development'
+    adapt_package_config(APP_DIST)
+  end
+end
 
-task 'bundle:osx' => ['initialize:bundle:osx', INFO_PLIST, ICONS_DIST_FILE, CREDITS_DIST_FILE, 'bundle:osx:app', 'bundle:osx:package.json']
+task 'bundle:osx:prune' do
+  if ENV['env'] != 'development'
+    FileUtils.rm_rf Dir.glob(APP_DIST+"/**/.git")
+  end
+end
+
+task 'bundle:archive:osx' do
+  if ENV['env'] != 'development'
+    Dir.chdir('dist') do
+      sh "tar -czf #{CONFIG[:osx_archive_name]} '#{File.basename(BUNDLE)}'"
+    end
+  end
+end
+
+task 'bundle:osx' => ['initialize:bundle:osx', INFO_PLIST, ICONS_DIST_FILE, CREDITS_DIST_FILE, 'bundle:osx:app', 'bundle:osx:package.json', 'bundle:osx:prune', 'bundle:archive:osx']
 
 task 'clean:bundle:osx' do
   FileUtils.rm_rf BUNDLE
+  FileUtils.rm_rf File.join('dist', CONFIG[:osx_archive_name])
 end
 
 task 'clean' => 'clean:bundle:osx'

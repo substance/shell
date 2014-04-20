@@ -29,6 +29,7 @@ def adapt_package_config(app_dist_folder)
   # this is hard coded: set the 'name' property to the configured application name
   # E.g., this will influence the application menu
   config["name"] = CONFIG[:app_name]
+  config["environment"] = "production"
 
   # finally write out the adapted package.json
   File.open package_config_dist_file, "w" do |f|
