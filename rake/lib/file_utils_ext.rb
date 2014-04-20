@@ -7,6 +7,13 @@ module Rake
     alias_method :original_mkdir, :mkdir
 
     def copy_r(source, target)
+      if source.is_a?(Array)
+        source.each { |f|
+          copy_r f, target
+        }
+        return
+      end
+
       if !File.exists?(source)
         raise "Can not copy: file/directory does not exist. #{source}"
       end

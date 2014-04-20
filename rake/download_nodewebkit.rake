@@ -1,6 +1,7 @@
 
 if OS.windows?
-  raise "Not yet implemented"
+  node_webkit_url = 'https://github.com/oliver----/node-webkit/releases/download/0.1/node-webkit.win.zip'
+  downloaded_archive = File.join('tmp', 'node-webkit.win.zip')
 elsif OS.mac?
   node_webkit_url = 'https://github.com/oliver----/node-webkit/releases/download/0.1/node-webkit.app.tar.gz
 '

@@ -75,42 +75,9 @@ else
   end
 end
 
-def deep_merge(first, second)
-  merger = proc { |key, v1, v2| Hash === v1 && Hash === v2 ? v1.merge(v2, &merger) : v2 }
-  first.merge(second, &merger)
-end
-
-task 'bundle:osx:package.json' do
-  if ENV['env'] != 'development'
-    puts "Preparing package.json..."
-
-    package_config_file = File.join(APP_DIR, 'package.json')
-    package_config_dist_file = File.join(APP_DIST, 'package.json')
-
-    json = File.read(package_config_file)
-    config = JSON.parse(json)
-
-    # overwrite with user specific package.json settings
-    if CONFIG.key?(:package_json)
-      config = deep_merge(config, CONFIG[:package_json])
-    end
-
-    # this is hard coded: set the 'name' property to the configured application name
-    # E.g., this will influence the application menu
-    config["name"] = CONFIG[:app_name]
-
-    # finally write out the adapted package.json
-    File.open package_config_dist_file, "w" do |f|
-      f.print JSON.pretty_generate(config)
-    end
-  end
-end
-
-################
-# TODO: we could extend the package.json according to
+task 'bundle:osx:package.json' => 'bundle:package.json'
 
 task 'bundle:osx' => ['initialize:bundle:osx', INFO_PLIST, ICONS_DIST_FILE, CREDITS_DIST_FILE, 'bundle:osx:app', 'bundle:osx:package.json']
-
 
 task 'clean:bundle:osx' do
   FileUtils.rm_rf BUNDLE
