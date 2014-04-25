@@ -1,0 +1,14 @@
+Package: <%= config[:app_exe] %>
+Version: <%= config[:version] %>
+Date: <%= dist_date %>
+Section: <%= config[:deb_section] %>
+Priority: optional
+Architecture: amd64
+Installed-Size: <%= dist_size %>
+Pre-Depends: dpkg (>= 1.14.0)
+Depends: <%= config[:deb_depends] %>
+Maintainer: <%= config[:maintainer] %>
+Homepage: <%= config[:product_page] %>
+License: <%= config[:license] %>
+Description: <%= config[:app_name] %>
+ <%= config[:description] %>

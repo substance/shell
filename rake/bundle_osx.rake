@@ -40,7 +40,7 @@ end
 # Generate dist/<app-name>.app/Contents/Info.plist from template
 
 template INFO_PLIST do
-  source "templates/Info.plist.erb"
+  source "templates/osx/Info.plist.erb"
   values 'config' => CONFIG
   mode   0644
 end
