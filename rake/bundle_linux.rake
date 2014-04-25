@@ -1,5 +1,7 @@
 require 'fileutils'
 require 'json'
+require 'template_task'
+#require 'date'
 
 private
 
@@ -50,7 +52,25 @@ task 'bundle:prune:linux' do
 end
 
 deb_config_reqs = []
-[ ['control', 0644],
+
+deb_control_file = File.join(DEBIAN_FOLDER, 'control')
+deb_config_reqs.push(deb_control_file)
+
+task deb_control_file do
+  dist_size = `du -s dist/package_root`
+  dist_size = dist_size.split(" ")[0]
+  dist_date = Date.today.rfc2822
+  
+  TemplateTask::create deb_control_file do
+    source  File.join('templates', 'linux', 'DEBIAN', "control.erb")
+    values  'config' => CONFIG,
+            'dist_size' => dist_size,
+            'dist_date' => dist_date
+    mode    0644
+  end
+end
+
+[
   ['postinst', 0755],
   ['prerm', 0755]
 ].each do |f, mode|

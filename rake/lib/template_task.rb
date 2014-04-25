@@ -1,54 +1,70 @@
 require 'erb'
 
-private
-class ValuesBinding
+module TemplateTask
 
-  def initialize(values)
-    @values = values;
-  end
+  private
+  class ValuesBinding
 
-  def get_binding
-    return binding
-  end
-
-  def method_missing(name)
-    name = name.to_s
-
-    if (name == "values")
-      return @values
+    def initialize(values)
+      @values = values;
     end
 
-    return @values[name];
+    def get_binding
+      return binding
+    end
+
+    def method_missing(name)
+      name = name.to_s
+      #puts "ValuesBinding: retrieving property #{name}"
+      if (name == "values")
+        return @values
+      end
+      return @values[name];
+    end
+
   end
 
-end
+  private
+  class TemplateData
 
-private
-class TemplateData
+    attr_reader :_path, :_source, :_values, :_mode
 
-  attr_reader :_path, :_source, :_values, :_mode
+    def initialize(name)
+      @_path = name
+      @_source = nil
+      @_values = {}
+      @_mode = 0644
+    end
 
-  def initialize(name)
-    @_path = name
-    @_source = nil
-    @_values = {}
-    @_mode = 0644
+    def source(path)
+      @_source = path
+    end
+
+    def path(path)
+      @_path = path
+    end
+
+    def values(vals)
+      @_values = vals
+    end
+
+    def mode(mode)
+      @_mode = mode
+    end
   end
 
-  def source(path)
-    @_source = path
-  end
+  public
+  def self.create(target, &block)
+    data = TemplateTask::TemplateData.new(target)
+    data.instance_eval(&block)
+    template = File.read(data._source)
+    renderer = ERB.new(template)
+    values = TemplateTask::ValuesBinding.new(data._values);
 
-  def path(path)
-    @_path = path
-  end
-
-  def values(vals)
-    @_values = vals
-  end
-
-  def mode(mode)
-    @_mode = mode
+    puts "Creating #{data._path} from #{data._source}"
+    content = renderer.result(values.get_binding)
+    File.open(data._path, 'w') {|f| f.write(content) }
+    File.chmod(data._mode, data._path)
   end
 
 end
@@ -69,13 +85,12 @@ end
 # end
 # ```
 
-public
 def template(name, &block)
-  data = TemplateData.new(name)
+  data = TemplateTask::TemplateData.new(name)
   data.instance_eval(&block)
   template = File.read(data._source)
   renderer = ERB.new(template)
-  values = ValuesBinding.new(data._values);
+  values = TemplateTask::ValuesBinding.new(data._values);
 
   # creating a task which is only triggered if the source file has changed
   file name => data._source do
