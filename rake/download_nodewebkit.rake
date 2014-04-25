@@ -6,6 +6,10 @@ elsif OS.mac?
   node_webkit_url = 'https://github.com/oliver----/node-webkit/releases/download/0.1/node-webkit.app.tar.gz
 '
   downloaded_archive = File.join('tmp', 'node-webkit.app.tar.gz')
+elsif OS.linux?
+  node_webkit_url = 'https://github.com/oliver----/node-webkit/releases/download/0.1/node-webkit.linux.tar.gz
+'
+  downloaded_archive = File.join('tmp', 'node-webkit.linux.tar.gz')
 end
 
 target_dir = File.join('tmp', 'node-webkit')

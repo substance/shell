@@ -1,0 +1,52 @@
+#!/bin/sh
+#
+# Copyright (c) 2009 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+action="$1"
+if [ "$2" = "in-favour" ]; then
+  # Treat conflict remove as an upgrade.
+  action="upgrade"
+fi
+# Don't clean-up just for an upgrade.`
+if [ "$action" = "upgrade" ] ; then
+  exit 0
+fi
+
+# Remove icons from the system icons
+XDG_ICON_RESOURCE="`which xdg-icon-resource 2> /dev/null`"
+if [ ! -x "$XDG_ICON_RESOURCE" ]; then
+  echo "Error: Could not find xdg-icon-resource" >&2
+  exit 1
+fi
+for icon in "/usr/share/<%= config[:app_exe] %>/icons/"*.png; do
+  size="${icon##*/app}"
+  "$XDG_ICON_RESOURCE" uninstall --size "${size%.png}" "<%= config[:app_exe] %>"
+done
+
+# Remove the entry from the system menu
+XDG_DESKTOP_MENU="`which xdg-desktop-menu 2> /dev/null`"
+UPDATE_MENUS="`which update-menus 2> /dev/null`"
+if [ ! -x "$XDG_DESKTOP_MENU" ]; then
+  echo "Error: Could not find xdg-desktop-menu" >&2
+  exit 1
+fi
+"$XDG_DESKTOP_MENU" uninstall /usr/share/<%= config[:app_exe] %>/<%= config[:app_exe] %>.desktop
+
+if [ -x "$UPDATE_MENUS" ]; then
+  update-menus
+fi
+
+# Add new mime types and register this app as default
+if [ -d "/usr/share/<%= config[:app_exe] %>/mime" ]; then
+  XDG_MIME="`which xdg-mime 2> /dev/null`"
+  if [ ! -x "$XDG_MIME" ]; then
+    echo "Error: Could not find xdg-mime" >&2
+    exit 1
+  fi
+  for mime in "/usr/share/<%= config[:app_exe] %>/mime/"*.xml; do
+    "$XDG_MIME" uninstall --mode system $mime
+  done
+  update-mime-database /usr/share/mime
+fi

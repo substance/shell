@@ -8,10 +8,6 @@ def deep_merge(first, second)
   first.merge(second, &merger)
 end
 
-def bla(a)
-  puts a
-end
-
 def adapt_package_config(app_dist_folder)
   puts "Preparing package.json..."
 
@@ -37,13 +33,17 @@ def adapt_package_config(app_dist_folder)
   end
 end
 
-
+# NOTE: bundling for linux is very similar to windows
+# TODO: factor out the shared stuff and separate
 if OS.windows?
   import "rake/bundle_win.rake"
   platform_specific_task = "bundle:win"
 elsif OS.mac?
   import "rake/bundle_osx.rake"
   platform_specific_task = "bundle:osx"
+elsif OS.linux?
+  import "rake/bundle_linux.rake"
+  platform_specific_task = "bundle:linux"
 end
 
 desc "Creates a platform specific application bundle ready for distribution."

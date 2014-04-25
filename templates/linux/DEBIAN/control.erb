@@ -1,0 +1,10 @@
+Package: <%= config[:app_exe] %>
+Version: <%= config[:version] %>
+Section: devel
+Priority: optional
+Architecture: amd64
+Pre-Depends: dpkg (>= 1.14.0)
+Depends: <%= config[:deb_depends] %>
+Maintainer: <%= config[:maintainer] %>
+Description: <%= config[:app_name] %>
+ <%= config[:description] %>
