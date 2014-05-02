@@ -91,7 +91,7 @@ end
 task 'bundle:archive:osx' do
   if ENV['env'] != 'development'
     Dir.chdir('dist') do
-      sh "tar -czf #{CONFIG[:osx_archive_name]} '#{File.basename(BUNDLE)}'"
+      sh "zip -r #{CONFIG[:osx_archive_name]} '#{File.basename(BUNDLE)}'"
     end
   end
 end
