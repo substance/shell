@@ -11,13 +11,13 @@ ICONS_SOURCE_FILE = File.join(SHELL_CONFIG_DIR, 'resources', @config[:app_osx_ic
 ICONS_DIST_FILE = File.join(BUNDLE, 'Contents', 'Resources', @config[:app_osx_icns])
 CREDITS_SOURCE_FILE = File.join(SHELL_CONFIG_DIR, 'resources', 'Credits.html')
 CREDITS_DIST_FILE = File.join(BUNDLE, 'Contents', 'Resources', 'Credits.html')
-APP_DIST = File.join(BUNDLE, 'Contents', 'Resources', 'app.nw')
+APP_DIST = File.join(BUNDLE, 'Contents', 'Resources', 'app')
 
 if !File.exists?(ICONS_SOURCE_FILE)
   LOGGER.info "!!! Could not find icns file: #{ICONS_SOURCE_FILE}"
 end
 
-# Copy tmp/node-webkit.app to dist/<app-name>.app
+# Copy tmp/Atom.app to dist/<app-name>.app
 
 task 'initialize:bundle:osx' do
   if File.exists?(BUNDLE)
@@ -29,12 +29,12 @@ task 'initialize:bundle:osx' do
   end
 
   # copies the directory recursively
-  FileUtils.copy_r(File.join('tmp', 'node-webkit', 'node-webkit.app'), BUNDLE)
+  FileUtils.copy_r(File.join('tmp', 'atom-shell', 'Atom.app'), BUNDLE)
 
   # remove the Info.plist to force re-generate
   FileUtils.rm INFO_PLIST
 
-  FileUtils.rm File.join(BUNDLE, 'Contents', 'Resources', 'nw.icns')
+  FileUtils.rm File.join(BUNDLE, 'Contents', 'Resources', 'atom.icns')
 end
 
 # Generate dist/<app-name>.app/Contents/Info.plist from template

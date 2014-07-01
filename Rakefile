@@ -23,5 +23,5 @@ desc 'Download everything necessary for building and bundling'
 task 'setup'
 
 
-import "rake/download_nodewebkit.rake"
+import "rake/download_atom.rake"
 import "rake/bundle.rake"
